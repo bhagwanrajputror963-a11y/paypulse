@@ -64,4 +64,26 @@ RSpec.describe 'Api::V1::Analytics', type: :request do
       expect(response).to have_http_status(:bad_request)
     end
   end
+
+  describe 'GET /api/v1/analytics/salary_summary_by_country' do
+    it 'returns stats grouped by all countries' do
+      create(:employee, country: 'India', salary: 50_000)
+      create(:employee, country: 'India', salary: 70_000)
+      create(:employee, country: 'USA', salary: 100_000)
+
+      get '/api/v1/analytics/salary_summary_by_country'
+
+      expect(response).to have_http_status(:ok)
+      expect(body['data']['countries'].length).to eq(2)
+
+      india = body['data']['countries'].find { |c| c['country'] == 'India' }
+      expect(india['count']).to eq(2)
+    end
+
+    it 'returns empty array when no employees exist' do
+      get '/api/v1/analytics/salary_summary_by_country'
+
+      expect(body['data']['countries']).to eq([])
+    end
+  end
 end
