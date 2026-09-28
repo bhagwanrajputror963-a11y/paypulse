@@ -106,9 +106,16 @@ export default function DashboardPage() {
         ) : (
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={380}>
-              <BarChart data={summary}>
+              <BarChart data={summary} margin={{ bottom: 48 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="country" />
+                <XAxis
+                  dataKey="country"
+                  interval={0}
+                  angle={-35}
+                  textAnchor="end"
+                  height={60}
+                  tick={{ fontSize: 12 }}
+                />
                 <YAxis />
                 <Tooltip formatter={(value) => `${Number(value).toLocaleString()} employees`} />
                 <Bar dataKey="count" name="Employees" fill="#4f46e5" radius={[6, 6, 0, 0]} />
@@ -124,9 +131,16 @@ export default function DashboardPage() {
         ) : (
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={380}>
-              <BarChart data={avgSalaryData}>
+              <BarChart data={avgSalaryData} margin={{ bottom: 48 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="country" />
+                <XAxis
+                  dataKey="country"
+                  interval={0}
+                  angle={-35}
+                  textAnchor="end"
+                  height={60}
+                  tick={{ fontSize: 12 }}
+                />
                 <YAxis />
                 <Tooltip
                   formatter={(value, _name, item) =>
