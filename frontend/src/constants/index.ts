@@ -57,3 +57,15 @@ export const STATUS_COLORS: Record<string, string> = {
   inactive: "orange",
   terminated: "red",
 };
+
+// Validated CVD-safe categorical palette (fixed order — do not reorder or cycle).
+export const CHART_CATEGORICAL_COLORS = [
+  "#2a78d6", // blue
+  "#eb6834", // orange
+  "#1baf7a", // aqua
+  "#eda100", // yellow
+  "#e87ba4", // magenta
+  "#008300", // green
+  "#4a3aa7", // violet
+];
+export const CHART_OTHER_COLOR = "#898781"; // muted gray for the folded "Other" bucket
