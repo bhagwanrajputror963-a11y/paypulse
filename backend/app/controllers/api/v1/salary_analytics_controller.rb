@@ -16,6 +16,10 @@ module Api
         render_resource(result)
       end
 
+      def salary_summary_by_country
+        render_resource(SalaryAnalyticsService.salary_summary_by_country, key: :countries)
+      end
+
       private
 
       def analytics_params

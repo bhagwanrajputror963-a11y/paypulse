@@ -17,4 +17,10 @@ class SalaryAnalyticsService
 
     { average: average, titles: titles }
   end
+
+  def self.salary_summary_by_country
+    Employee.group(:country)
+            .select('country, COUNT(*) as count, AVG(salary) as average_salary')
+            .map { |r| { country: r.country, count: r.count, average_salary: r.average_salary.to_f.round(2) } }
+  end
 end
