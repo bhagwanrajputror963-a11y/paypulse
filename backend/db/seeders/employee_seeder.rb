@@ -18,6 +18,21 @@ class EmployeeSeeder
     'France' => 500
   }.freeze
 
+  # Salary hierarchy by job title so "Average Salary by Job Title" isn't flat
+  # random noise. Every entry in job_titles.json must have a range here.
+  JOB_TITLE_SALARY_RANGES = {
+    'Intern' => 20_000..40_000,
+    'Coordinator' => 35_000..55_000,
+    'Analyst' => 45_000..75_000,
+    'Designer' => 55_000..100_000,
+    'Engineer' => 60_000..110_000,
+    'Consultant' => 70_000..130_000,
+    'Lead' => 90_000..150_000,
+    'Manager' => 100_000..170_000,
+    'Architect' => 120_000..190_000,
+    'Director' => 150_000..250_000
+  }.freeze
+
   def call
     countries = read_json('countries.json')
     job_titles = read_json('job_titles.json')
@@ -26,6 +41,9 @@ class EmployeeSeeder
     currency_by_country = countries.each_with_object({}) { |c, h| h[c['name']] = c['currency'] }
 
     raise "COUNTRY_WEIGHTS must sum to #{TOTAL}" unless COUNTRY_WEIGHTS.values.sum == TOTAL
+    unless (job_titles - JOB_TITLE_SALARY_RANGES.keys).empty?
+      raise "JOB_TITLE_SALARY_RANGES missing entries for: #{job_titles - JOB_TITLE_SALARY_RANGES.keys}"
+    end
 
     fn_size = first_names.size
     ln_size = last_names.size
@@ -56,7 +74,7 @@ class EmployeeSeeder
               email: "employee_#{i}@paypulse.com",
               job_title: job_title,
               country: country,
-              salary: rand(30_000..250_000).round(2),
+              salary: rand(JOB_TITLE_SALARY_RANGES.fetch(job_title)).round(2),
               currency: currency,
               employment_status: 'active',
               date_of_joining: Date.today - rand(1..1825),

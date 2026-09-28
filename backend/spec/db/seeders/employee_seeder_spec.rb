@@ -47,5 +47,24 @@ RSpec.describe EmployeeSeeder do
       elapsed = Benchmark.realtime { described_class.new.call }
       expect(elapsed).to be < 10
     end
+
+    it 'assigns each employee a salary within their own job title\'s configured range' do
+      described_class.new.call
+
+      Employee.pluck(:job_title, :salary).each do |job_title, salary|
+        range = EmployeeSeeder::JOB_TITLE_SALARY_RANGES.fetch(job_title)
+        expect(salary).to be_between(range.first, range.last),
+          "#{job_title} salary #{salary} outside #{range}"
+      end
+    end
+
+    it 'produces a salary hierarchy across job titles' do
+      described_class.new.call
+
+      averages = Employee.group(:job_title).average(:salary)
+      expect(averages['Director']).to be > averages['Manager']
+      expect(averages['Manager']).to be > averages['Engineer']
+      expect(averages['Engineer']).to be > averages['Intern']
+    end
   end
 end
