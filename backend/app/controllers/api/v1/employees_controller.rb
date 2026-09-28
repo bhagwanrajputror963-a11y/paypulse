@@ -1,7 +1,7 @@
 module Api
   module V1
     class EmployeesController < ApplicationController
-      before_action :set_employee, only: %i[show update]
+      before_action :set_employee, only: %i[show update destroy]
 
       def index
         render_resource(Employee.order(:id), key: :employees, paginate: true)
@@ -27,6 +27,11 @@ module Api
         else
           render_validation_errors(@employee.errors.full_messages)
         end
+      end
+
+      def destroy
+        @employee.destroy
+        head :no_content
       end
 
       private
