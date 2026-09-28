@@ -25,6 +25,14 @@ RSpec.describe Employee, type: :model do
     end
   end
 
+  describe 'scopes' do
+    it '.by_country returns only employees from the given country' do
+      create(:employee, country: 'India')
+      create(:employee, country: 'USA')
+      expect(Employee.by_country('India').pluck(:country)).to all(eq('India'))
+    end
+  end
+
   describe 'callbacks' do
     it 'normalizes email to lowercase and strips whitespace before save' do
       employee = create(:employee, email: '  John@Example.COM  ')
