@@ -3,6 +3,11 @@ class Employee < ApplicationRecord
 
   enum :employment_status, { active: 'active', inactive: 'inactive', terminated: 'terminated' }, default: 'active'
 
+  scope :by_country, ->(country) { where(country: country) }
+  scope :by_job_title, ->(title) { where(job_title: title) }
+  scope :by_status, ->(status) { where(employment_status: status) }
+  scope :by_email, ->(email) { where(email: email.to_s.downcase.strip) }
+
   before_validation :normalize_email
 
   validates :full_name, presence: true
