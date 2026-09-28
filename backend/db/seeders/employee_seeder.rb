@@ -3,11 +3,29 @@ class EmployeeSeeder
   TOTAL = 10_000
   DATA_PATH = Rails.root.join('db/data/fixtures').freeze
 
+  # Uneven headcount per country so Headcount/Workforce-Distribution charts
+  # aren't a flat 1,000-per-country line. Must sum to TOTAL.
+  COUNTRY_WEIGHTS = {
+    'India' => 2200,
+    'USA' => 1600,
+    'UK' => 1100,
+    'Brazil' => 850,
+    'Germany' => 900,
+    'Canada' => 800,
+    'Japan' => 750,
+    'Australia' => 700,
+    'Singapore' => 600,
+    'France' => 500
+  }.freeze
+
   def call
     countries = read_json('countries.json')
     job_titles = read_json('job_titles.json')
     first_names = read_lines('first_names.txt')
     last_names = read_lines('last_names.txt')
+    currency_by_country = countries.each_with_object({}) { |c, h| h[c['name']] = c['currency'] }
+
+    raise "COUNTRY_WEIGHTS must sum to #{TOTAL}" unless COUNTRY_WEIGHTS.values.sum == TOTAL
 
     fn_size = first_names.size
     ln_size = last_names.size
@@ -18,28 +36,38 @@ class EmployeeSeeder
     puts("[EmployeeSeeder] Starting — target #{TOTAL} employees, batch #{BATCH_SIZE}")
     Employee.delete_all if Rails.env.development?
 
-    TOTAL.times.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
-      country, currency = countries[batch_index].values
-      ActiveRecord::Base.transaction do
-        records = batch.map do |i|
-          job_title = job_titles[i % job_size]
+    global_index = 0
+    batch_number = 0
 
-          {
-            full_name: "#{first_names[i % fn_size]} #{last_names[i % ln_size]}",
-            email: "employee_#{i}@paypulse.com",
-            job_title: job_title,
-            country: country,
-            salary: rand(30_000..250_000).round(2),
-            currency: currency,
-            employment_status: 'active',
-            date_of_joining: Date.today - rand(1..1825),
-            created_at: now,
-            updated_at: now
-          }
+    COUNTRY_WEIGHTS.each do |country, headcount|
+      currency = currency_by_country.fetch(country)
+
+      headcount.times.each_slice(BATCH_SIZE) do |batch|
+        batch_number += 1
+
+        ActiveRecord::Base.transaction do
+          records = batch.map do
+            i = global_index
+            global_index += 1
+            job_title = job_titles[i % job_size]
+
+            {
+              full_name: "#{first_names[i % fn_size]} #{last_names[i % ln_size]}",
+              email: "employee_#{i}@paypulse.com",
+              job_title: job_title,
+              country: country,
+              salary: rand(30_000..250_000).round(2),
+              currency: currency,
+              employment_status: 'active',
+              date_of_joining: Date.today - rand(1..1825),
+              created_at: now,
+              updated_at: now
+            }
+          end
+
+          Employee.upsert_all(records, unique_by: :index_employees_on_lower_email)
+          puts("[EmployeeSeeder] Upserted batch #{batch_number} (#{records.size} records, #{country})")
         end
-
-        Employee.upsert_all(records, unique_by: :index_employees_on_lower_email)
-        puts("[EmployeeSeeder] Upserted batch #{batch_index + 1} (#{records.size} records)")
       end
     end
 
