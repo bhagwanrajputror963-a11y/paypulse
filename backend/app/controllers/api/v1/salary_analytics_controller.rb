@@ -1,10 +1,19 @@
 module Api
   module V1
     class SalaryAnalyticsController < ApplicationController
-      before_action -> { require_param!(:country) }, only: %i[stats_by_country]
+      before_action -> { require_param!(:country) }, only: %i[stats_by_country average_by_job_title]
 
       def stats_by_country
         render_resource(SalaryAnalyticsService.stats_by_country(analytics_params[:country]))
+      end
+
+      def average_by_job_title
+        result = SalaryAnalyticsService.average_by_job_title(
+          analytics_params[:country],
+          analytics_params[:job_title]
+        )
+
+        render_resource(result)
       end
 
       private
