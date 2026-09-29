@@ -6,13 +6,34 @@ A minimal yet practical salary management system for organizations, designed to 
 
 ```
 paypulse/
-├── backend/    Ruby 3.3 + Rails 8.0 API with PostgreSQL
-├── frontend/   Next.js 15 + React 19 + Ant Design + Recharts
-└── docs/       Architecture decisions and planning artifacts
+├── backend/            Ruby 3.4 + Rails 8.1 API with PostgreSQL
+├── frontend/           Next.js 16 + React 19 + Ant Design + Recharts
+├── docs/               Architecture decisions and planning artifacts
+└── docker-compose.yml  One-command local stack (Postgres + backend + frontend)
 ```
 
 ## Quick Start
-### Backend
+
+### Option A — Docker (recommended, no local Ruby/Node/Postgres needed)
+```bash
+docker compose up --build
+```
+- Backend: [http://localhost:3000](http://localhost:3000) — migrates and seeds 10,000 employees on startup
+- Frontend: [http://localhost:3001](http://localhost:3001)
+- Postgres: exposed on host port `5433` (container-internal `5432`, to avoid clashing with a local Postgres install) — `psql -h localhost -p 5433 -U postgres -d paypulse_development` (password `postgres`)
+
+Run the backend test suite against the running stack:
+```bash
+docker compose exec -e RAILS_ENV=test backend bash -c "bundle exec rails db:create db:migrate && bundle exec rspec"
+```
+
+Stop everything (add `-v` to also drop the Postgres volume and reseed from scratch next time):
+```bash
+docker compose down
+```
+
+### Option B — Run natively
+#### Backend
 ```bash
 cd backend
 cp .env.example .env
@@ -21,7 +42,7 @@ rails db:create db:migrate db:seed
 rails server                    # http://localhost:3000
 ```
 
-### Frontend
+#### Frontend
 ```bash
 cd frontend
 cp .env.example .env.local
@@ -29,10 +50,10 @@ npm install
 npm run dev                     # http://localhost:3001
 ```
 
-### Tests
+#### Tests
 ```bash
 cd backend
-bundle exec rspec               # 64 specs, all passing
+bundle exec rspec               # 66 specs, all passing
 ```
 
 ## Documentation

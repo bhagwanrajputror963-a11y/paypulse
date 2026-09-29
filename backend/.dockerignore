@@ -1,0 +1,12 @@
+.git
+log/*
+tmp/*
+!log/.keep
+!tmp/.keep
+.env
+.env.*
+!.env.example
+storage/*
+!storage/.keep
+.bundle
+vendor/bundle
