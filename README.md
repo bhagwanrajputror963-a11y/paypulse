@@ -63,6 +63,7 @@ Component READMEs:
 - [Frontend README](frontend/README.md) — Next.js setup, env vars, running the UI
 
 Design and planning:
+- [Requirements](docs/requirements.md) — one-page scope: in/out of scope, and why
 - [Architecture](docs/architecture.md) — system diagrams, backend/frontend design, DB schema, API envelope
 - [Decisions](docs/decisions.md) — trade-offs taken, what was deferred, performance considerations
 - [Testing Strategy](docs/testing-strategy.md) — TDD approach, the commit-by-commit test→feat narrative, what's covered
